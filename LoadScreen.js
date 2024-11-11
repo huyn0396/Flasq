@@ -9,23 +9,20 @@ export default function LoadingScreen({ navigation }) {
   useEffect(() => {
     async function checkSession() {
       const session = await supabase.auth.getSession();
-
+   
       if (session && session.data && session.data.session && session.data.session.user) {
-        console.log("SESSION: ", session.data.session);
         const { data: user, error } = await supabase
           .from('users')
           .select('profile_pic, first_name, last_name, email, saved')
           .eq('id', session.data.session.user.id)
           .single();
-
-        console.log('user: ', user); // Log the user data
-
+   
+   
         if (error) {
           console.log('Error fetching user data:', error);
           return;
         }
-
-
+   
         setUser({
           id: session.data.session.user.id,
           firstName: user.first_name,
@@ -34,11 +31,12 @@ export default function LoadingScreen({ navigation }) {
           profilePicUrl: user.profile_pic,
           savedBars: user.saved
         });
-        navigation.replace('Main');
+        navigation.replace('MainApp');  // Updated here
       } else {
-        navigation.replace('Login');
+        navigation.replace('LoginScreen');  // Updated here
       }
     }
+   
 
     checkSession();
   }, []);

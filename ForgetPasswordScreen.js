@@ -15,27 +15,20 @@ import {
   themeColor,
 } from "react-native-rapi-ui";
 
-export default function ({ navigation }) {
+export default function ForgetPasswordScreen({ navigation }) {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function login() {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-  
+  async function handleForgetPassword() {
+    setLoading(true);
+    const { data, error } = await supabase.auth.api.resetPasswordForEmail(email);
+
     if (error) {
-      console.log(error.message);
-      alert(error.message === 'Invalid login credentials' ? 'Invalid login' : error.message);
-      return;
+      alert(error.message);
+    } else {
+      alert("Check your email to reset your password!");
     }
-  
-    if (data && data.user) {
-      navigation.replace('MainApp');
-      console.log(data);
-    }
+    setLoading(false);
   }
 
   return (
@@ -53,7 +46,7 @@ export default function ({ navigation }) {
             <Image
               resizeMode="contain"
               style={{ height: 220, width: 220 }}
-              source={require("./assets/login.png")}
+              source={require("./assets/forget.png")}
             />
           </View>
           <View
@@ -69,7 +62,7 @@ export default function ({ navigation }) {
               style={{ alignSelf: "center", padding: 30 }}
               size="h3"
             >
-              Login
+              Forget Password
             </Text>
             <Text>Email</Text>
             <TextInput
@@ -82,23 +75,13 @@ export default function ({ navigation }) {
               keyboardType="email-address"
               onChangeText={(text) => setEmail(text)}
             />
-            <Text style={{ marginTop: 15 }}>Password</Text>
-            <TextInput
-              containerStyle={{ marginTop: 15 }}
-              placeholder="Enter your password"
-              value={password}
-              autoCapitalize="none"
-              autoCompleteType="off"
-              autoCorrect={false}
-              secureTextEntry={true}
-              onChangeText={(text) => setPassword(text)}
-            />
             <Button
-              text={loading ? "Loading" : "Continue"}
-              onPress={() => login()}
+              text={loading ? "Loading" : "Send email"}
+              onPress={() => handleForgetPassword()}
               style={{ marginTop: 20 }}
               disabled={loading}
             />
+
             <View
               style={{
                 flexDirection: "row",
@@ -107,28 +90,14 @@ export default function ({ navigation }) {
                 justifyContent: "center",
               }}
             >
-              <Text size="md">Don't have an account?</Text>
-              <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+              <Text size="md">Already have an account?</Text>
+              <TouchableOpacity onPress={() => navigation.navigate("LoginScreen")}>
                 <Text
                   size="md"
                   fontWeight="bold"
                   style={{ marginLeft: 5 }}
                 >
-                  Register here
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: 10,
-                justifyContent: "center",
-              }}
-            >
-              <TouchableOpacity onPress={() => navigation.navigate("ForgetPassword")}>
-                <Text size="md" fontWeight="bold">
-                  Forget password
+                  Login here
                 </Text>
               </TouchableOpacity>
             </View>

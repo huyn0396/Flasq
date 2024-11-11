@@ -28,7 +28,7 @@ function HomeScreen({navigation}) {
   const [categories, setCategories] = useState(["Beer", "Wine", "Spirits", "Music", "Dance"]);
   const navigateToBarScreen = (bar) => {
     if(!bar){console.log("no bar"); return;}
-    navigation.navigate('DisplayBarScreen',bar);
+    navigation.navigate('BarDetails',bar);
   };
 
 

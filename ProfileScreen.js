@@ -26,7 +26,7 @@ export default function ProfileScreen({ navigation }) {
     if (error) {
       console.error('Error signing out:', error);
     } else {
-      navigation.replace('Login');
+      navigation.replace('LoadScreen');
     }
   };
 

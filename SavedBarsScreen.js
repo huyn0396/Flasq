@@ -10,15 +10,12 @@ function SavedBarsScreen({ navigation }) {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log(user.id);
       getUserData(user.id)
         .then(userData => {
-          console.log(userData.saved);
           if (userData && userData.saved && userData.saved.length > 0) {
             // Fetch each saved bar details
             Promise.all(userData.saved.map(barId => getBarData(barId)))
               .then(bars => {
-                console.log(bars); // Log the fetched bars
                 setSavedBars(bars);
               })
               .catch(error => {
@@ -45,7 +42,7 @@ function SavedBarsScreen({ navigation }) {
         <TouchableOpacity 
           key={index} 
           style={styles.barContainer}
-          onPress={() => navigation.navigate('DisplayBarScreen', bar)}
+          onPress={() => navigation.navigate('BarDetails', bar)}
         >
           <Image
             style={styles.barImage}

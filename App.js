@@ -3,37 +3,40 @@ import { View, Text, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ThemeProvider } from "react-native-rapi-ui";
+
 import HomeScreen from './HomeScreen';
 import LoginScreen from './LoginScreen';
 import LoadScreen from './LoadScreen';
-import SettingsScreen from '././SettingsScreen';
-
-import { UserContext } from './UserContext';
-
+import SettingsScreen from './SettingsScreen';
 import SavedBarsScreen from './SavedBarsScreen';
 import NotificationsScreen from './NotificationsScreen';
 import ProfileScreen from './ProfileScreen';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import { ThemeProvider } from "react-native-rapi-ui";
 import DisplayBarScreen from './DisplayBarScreen';
+import RegisterScreen from './RegisterScreen';
+import ForgetPasswordScreen from './ForgetPasswordScreen';
+import { UserContext } from './UserContext';
 
 
-const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
-const ProfileStack = createStackNavigator(); // Create a stack navigator for Profile
+// Main Navigators
+const RootStack = createStackNavigator();     // Root navigation stack
+const TabNavigator = createBottomTabNavigator();  // Bottom tab navigator
+const HomeStack = createStackNavigator();     // Home screen stack
+const ProfileStack = createStackNavigator();  // Profile screen stack
 
-
-function MainStack() {
+// Stack for Home screens
+function HomeStackNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="DisplayBarScreen" component={DisplayBarScreen} />
-    </Stack.Navigator>
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen name="Home" component={HomeScreen} />
+      <HomeStack.Screen name="BarDetails" component={DisplayBarScreen} />
+    </HomeStack.Navigator>
   );
 }
 
-function ProfileStackScreen() {
+// Stack for Profile and Settings screens
+function ProfileStackNavigator() {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />
@@ -42,57 +45,44 @@ function ProfileStackScreen() {
   );
 }
 
-function AppStack() {
+// Main Tab Navigator for Home, Saved Bars, Notifications, Profile
+function MainTabNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Load">
-      <Stack.Screen name="Load" component={LoadScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
-      <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerShown: false }} /> 
-
-    </Stack.Navigator>
-  );
-}
-
-function MainTabs() {
-  return (
-    <Tab.Navigator
+    <TabNavigator.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Saved Bars') {
-            iconName = focused ? 'bookmark' : 'bookmark-outline';
-          } else if (route.name === 'Notifications') {
-            iconName = focused ? 'notifications' : 'notifications-outline';
-          } else if (route.name === 'ProfileNest' || route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
+          if (route.name === 'HomeTab') iconName = focused ? 'home' : 'home-outline';
+          else if (route.name === 'SavedBars') iconName = focused ? 'bookmark' : 'bookmark-outline';
+          else if (route.name === 'Notifications') iconName = focused ? 'notifications' : 'notifications-outline';
+          else if (route.name === 'ProfileTab') iconName = focused ? 'person' : 'person-outline';
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: 'tomato',
         tabBarInactiveTintColor: 'gray',
         tabBarShowLabel: false,
-        tabBarStyle: { display: 'flex' },
         headerShown: false
       })}
     >
-      <Tab.Screen name="Home" component={MainStack} options={{ title: '' }} />
-      <Tab.Screen name="Saved Bars" component={SavedBarsScreen} options={{ title: '' }} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ title: '' }} />
-      <Tab.Screen name="ProfileNest" component={ProfileStackScreen}
-                listeners={({ navigation }) => ({
-                    tabPress: e => {
-                        // Prevent default action
-                        e.preventDefault();
-                        // Navigate to the initial route
-                        navigation.navigate('ProfileNest', { screen: 'Profile' });
-                    },
-                })}/>
-    </Tab.Navigator>
+      <TabNavigator.Screen name="HomeTab" component={HomeStackNavigator} />
+      <TabNavigator.Screen name="SavedBars" component={SavedBarsScreen} />
+      <TabNavigator.Screen name="Notifications" component={NotificationsScreen} />
+      <TabNavigator.Screen name="ProfileTab" component={ProfileStackNavigator} />
+    </TabNavigator.Navigator>
+  );
+}
+
+// Root Stack Navigator for Initial Load, Login, and Main App
+function RootStackNavigator() {
+  return (
+    <RootStack.Navigator initialRouteName="LoadScreen">
+      <RootStack.Screen name="LoadScreen" component={LoadScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="ForgetPassword" component={ForgetPasswordScreen} options={{ headerShown: false }} />
+      <RootStack.Screen name="MainApp" component={MainTabNavigator} options={{ headerShown: false }} />
+    </RootStack.Navigator>
   );
 }
 
@@ -107,15 +97,13 @@ export default function App() {
   };
 
   return (
-    <>
-      <ThemeProvider theme="light">
+    <ThemeProvider theme="light">
+      <UserContext.Provider value={{ user, setUser, setProfilePicUrl }}>
         <StatusBar barStyle="light-content" backgroundColor="black" />
-        <UserContext.Provider value={{ user, setUser, setProfilePicUrl }}>
-          <NavigationContainer>
-            <AppStack />
-          </NavigationContainer>
-        </UserContext.Provider>
-      </ThemeProvider>
-    </>
+        <NavigationContainer>
+          <RootStackNavigator />
+        </NavigationContainer>
+      </UserContext.Provider>
+    </ThemeProvider>
   );
 }
